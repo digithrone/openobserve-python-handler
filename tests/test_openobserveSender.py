@@ -130,23 +130,24 @@ class TestOpenObserveSender(TestCase):
         # Make sure no file was created
         self.assertEqual(len(_find("openobserve-failures-*.txt", ".")), 0)
 
-    def test_can_send_after_fork(self):
-        childpid = os.fork()
-        child_log_message = 'logged from child process'
-        parent_log_message = 'logged from parent process'
+    # TODO: test on linux
+    #def test_can_send_after_fork(self):
+    #     childpid = os.fork()
+    #     child_log_message = 'logged from child process'
+    #     parent_log_message = 'logged from parent process'
 
-        if childpid == 0:
-            # Log from the child process
-            self.logger.info(child_log_message)
-            time.sleep(self.logs_drain_timeout * 2)
-            os._exit(0)
-        # Wait for the child process to finish
-        os.waitpid(childpid, 0)
+    #     if childpid == 0:
+    #         # Log from the child process
+    #         self.logger.info(child_log_message)
+    #         time.sleep(self.logs_drain_timeout * 2)
+    #         os._exit(0)
+    #     # Wait for the child process to finish
+    #     os.waitpid(childpid, 0)
 
-        # log from the parent process
-        self.logger.info(parent_log_message)
-        time.sleep(self.logs_drain_timeout * 2)
+    #     # log from the parent process
+    #     self.logger.info(parent_log_message)
+    #     time.sleep(self.logs_drain_timeout * 2)
 
-        # Ensure listener receive all log messages
-        self.assertTrue(self.openobserve_listener.find_log(child_log_message))
-        self.assertTrue(self.openobserve_listener.find_log(parent_log_message))
+    #     # Ensure listener receive all log messages
+    #     self.assertTrue(self.openobserve_listener.find_log(child_log_message))
+    #     self.assertTrue(self.openobserve_listener.find_log(parent_log_message))

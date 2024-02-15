@@ -11,7 +11,7 @@ from openobserve.handler import OpenObserveHandler
 
 class TestOpenObserveHandler(TestCase):
     def setUp(self):
-        self.handler = OpenObserveHandler('moo')
+        self.handler = OpenObserveHandler("username","password","http://openobserve.mydomain.net","org","stream")
 
     def test_json(self):
         formatter = logging.Formatter(

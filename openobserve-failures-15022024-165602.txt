@@ -1,1 +1,0 @@
-{"logger": "test", "line_number": 105, "path_name": "d:\\repositories\\git.digithrone.com\\openobserve-python-handler\\tests\\test_openobserveSender.py", "log_level": "INFO", "type": "type", "message": "Backup to local filesystem", "@timestamp": "2024-02-15T15:55:43.529Z", "key": "value"}
