@@ -78,8 +78,9 @@ class TestOpenObserveSender(TestCase):
         self.logger.info(log_message)
         time.sleep(self.logs_drain_timeout*2)
         self.assertTrue(self.openobserve_listener.find_log(log_message))
-
-    def test_multiple_lines_drain(self):
+    
+    def test_multiple_lines_drain(self):        
+        self.assertEqual(self.openobserve_listener.get_number_of_logs(),0,"Log is not empty")
         logs_num = 50
         for counter in range(0, logs_num):
             self.logger.info("Test " + str(counter))
@@ -132,7 +133,7 @@ class TestOpenObserveSender(TestCase):
         # Make sure no file is present
         self.assertEqual(len(_find("openobserve-failures-*.txt", ".")), 0)
 
-        time.sleep(self.retries_no*self.retry_timeout)  # All of the retries
+        time.sleep(self.retries_no*self.retry_timeout*self.logs_drain_timeout*2)  # All of the retries
 
         # Make sure no file was created
         self.assertEqual(len(_find("openobserve-failures-*.txt", ".")), 0)

@@ -2,7 +2,7 @@ name: Pypi Release
 on:
   workflow_run:
     workflows: ["CI Tests"]
-    branches: [master]
+    branches: [main]
     types:
       - completed
   # Allows you to run this workflow manually from the Actions tab
