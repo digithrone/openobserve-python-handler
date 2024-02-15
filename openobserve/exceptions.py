@@ -1,0 +1,2 @@
+class OpenObserveException(Exception):
+    pass
