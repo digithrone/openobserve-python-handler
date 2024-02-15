@@ -25,7 +25,7 @@ class TestExtraFieldsFilter(TestCase):
         self.openobserve_listener = listener.MockOpenObserveListener()
         self.openobserve_listener.clear_logs_buffer()
         self.openobserve_listener.clear_server_error()
-        self.logs_drain_timeout = 1
+        self.logs_drain_timeout = 5
         self.retries_no = 4
         self.retry_timeout = 2
         self.add_context = True

@@ -51,6 +51,8 @@ class OpenObserveHandler(logging.Handler):
 OpenTelemetry logging optional package isn't installed.
 Please install the following package:
 pip install 'openobserve-python-handler[opentelemetry-logging]'""")
+            except RuntimeError:
+                print(RuntimeError)
         self.openobserve_sender = OpenObserveSender(
             username=username,
             password=password,

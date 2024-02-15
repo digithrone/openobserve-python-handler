@@ -14,10 +14,10 @@ setup(
     packages=find_packages(),
     install_requires=[
         "requests>=2.27.0",
-        "protobuf>=3.20.2"
+        "protobuf>=3.20.2",
+        "opentelemetry-instrumentation-logging==0.39b0"
     ],
-    extras_require={
-        "opentelemetry-logging": ["opentelemetry-instrumentation-logging==0.39b0"]
+    extras_require={        
     },
     test_requires=[
         "future"

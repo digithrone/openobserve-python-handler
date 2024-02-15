@@ -24,9 +24,9 @@ class TestAddContext(TestCase):
         self.openobserve_listener = listener.MockOpenObserveListener()
         self.openobserve_listener.clear_logs_buffer()
         self.openobserve_listener.clear_server_error()
-        self.logs_drain_timeout = 1
-        self.retries_no = 4
-        self.retry_timeout = 2
+        self.logs_drain_timeout = 5
+        self.retries_no = 1
+        self.retry_timeout = 5
         self.add_context = True
         self.logging_configuration = {
             "version": 1,
@@ -38,16 +38,16 @@ class TestAddContext(TestCase):
             },
             "handlers": {
                 "OpenObserveHandler": {
+                    "username": "username",
+                    "password": "password",                    
+                    'url': "http://" + self.openobserve_listener.get_host() + ":" + str(self.openobserve_listener.get_port()),
+                    "organization": "organization",
+                    "stream": "stream",
                     "class": "openobserve.handler.OpenObserveHandler",
                     "formatter": "openobserve",
                     "level": "DEBUG",
-                    "username": "user",
-                    "password": "password",
                     'openobserve_type': "type",
                     'logs_drain_timeout': self.logs_drain_timeout,
-                    'url': "http://" + self.openobserve_listener.get_host() + ":" + str(self.openobserve_listener.get_port()),
-                    "organization": "myorg",
-                    "stream": "teststream",
                     'debug': True,
                     'retries_no': self.retries_no,
                     'retry_timeout': self.retry_timeout,
