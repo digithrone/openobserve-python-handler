@@ -2,6 +2,7 @@ import fnmatch
 import logging.config
 import os
 import time
+from token import LESS
 from unittest import TestCase
 
 from .mockOpenObserveListener import listener
@@ -23,9 +24,9 @@ class TestOpenObserveSender(TestCase):
         self.openobserve_listener = listener.MockOpenObserveListener()
         self.openobserve_listener.clear_logs_buffer()
         self.openobserve_listener.clear_server_error()
-        self.logs_drain_timeout = 5
-        self.retries_no = 2
-        self.retry_timeout = 5
+        self.logs_drain_timeout = 3
+        self.retries_no = 1
+        self.retry_timeout = 2
 
         logging_configuration = {
             "version": 1,
@@ -66,21 +67,27 @@ class TestOpenObserveSender(TestCase):
         for curr_file in _find("openobserve-failures-*.txt", "."):
             os.remove(curr_file)
 
+    # def sleep_until_or_timeout(self,limit):
+    #     counter=0
+    #     while counter < limit :
+    #         counter+=1
+    #         time.sleep(1)                
+
     def test_simple_log_drain(self):
         log_message = "Test simple log drain"
         self.logger.info(log_message)
-        time.sleep(self.logs_drain_timeout * 2)
+        time.sleep(self.logs_drain_timeout*2)
         self.assertTrue(self.openobserve_listener.find_log(log_message))
 
     def test_multiple_lines_drain(self):
         logs_num = 50
         for counter in range(0, logs_num):
             self.logger.info("Test " + str(counter))
-        time.sleep(self.logs_drain_timeout * 2)
+        time.sleep(self.logs_drain_timeout*2)
 
         for counter in range(0, logs_num):
             self.logger.info("Test " + str(counter))
-        time.sleep(self.logs_drain_timeout * 2)
+        time.sleep(self.logs_drain_timeout*2)
 
         self.assertEqual(self.openobserve_listener.get_number_of_logs(), logs_num * 2)
 
@@ -89,7 +96,7 @@ class TestOpenObserveSender(TestCase):
         self.openobserve_listener.set_server_error()
         self.logger.info(log_message)
 
-        time.sleep(self.logs_drain_timeout * 2)
+        time.sleep(self.logs_drain_timeout)
 
         self.assertFalse(self.openobserve_listener.find_log(log_message))
 
@@ -107,7 +114,7 @@ class TestOpenObserveSender(TestCase):
         # Make sure no file is present
         self.assertEqual(len(_find("openobserve-failures-*.txt", ".")), 0)
 
-        time.sleep(self.retries_no*self.retry_timeout*2*2)  # All of the retries
+        time.sleep(self.retries_no*self.retry_timeout*self.logs_drain_timeout*2)  # All of the retries
 
         failure_files = _find("openobserve-failures-*.txt", ".")
         self.assertEqual(len(failure_files), 1)
