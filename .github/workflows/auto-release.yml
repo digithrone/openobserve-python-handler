@@ -1,8 +1,12 @@
 name: Pypi Release
 on:
+  push:
+    tags:
+      - 'v*' #push everything to matching v*
   workflow_run:
     workflows: ["CI Tests"]
-    branches: [main]
+    branches:
+      - 'main'
     types:
       - completed
   # Allows you to run this workflow manually from the Actions tab
