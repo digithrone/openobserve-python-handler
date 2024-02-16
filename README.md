@@ -3,6 +3,8 @@
 <table><tr><th>
 </th></tr></table>
 
+Disclaimer: This project is based on https://github.com/logzio/logzio-python-handler/ code snapshot taken on 15.2.2024.
+
 This is a Python handler that sends logs in bulk over HTTPS to OpenObserve service.
 The handler uses a subclass named OpenObserveSender (which can be used without this handler as well, to ship raw data).
 The OpenObserveSender class opens a new Thread, that consumes from the logs queue. Each iteration (its frequency of which can be configured by the logs_drain_timeout parameter), will try to consume the queue in its entirety.
@@ -16,11 +18,6 @@ In case the logs failed to be sent to OpenObserve service after a couple of trie
 pip install openobserve-python-handler
 ```
 
-If you'd like to use [Trace context](#trace-context), you need to install the OpenTelemetry logging instrumentation dependency by running the following command:
-
-```bash
-pip install openobserve-python-handler[opentelemetry-logging]
-```
 ## Tested Python Versions
 Travis CI will build this handler and test against:
   - "3.5"
@@ -53,7 +50,7 @@ class=openobserve.handler.OpenObserveHandler
 formatter=openobserveFormat
 
 # Parameters must be set in order. Replace these parameters with your configuration.
-args=('<<LOG-SHIPPING-TOKEN>>', '<<LOG-TYPE>>', <<TIMEOUT>>, 'https://<<LISTENER-HOST>>:8071', <<DEBUG-FLAG>>,<<NETWORKING-TIMEOUT>>,<<RETRY-LIMIT>>,<<RETRY-TIMEOUT>>)
+args=('<<LOG-USERNAME>>','<<LOG-PASSWORD>>','<<LOG-URL>>','<<LOG-ORGANIZATION>>','<<LOG-STREAM>>', '<<LOG-TYPE>>', <<TIMEOUT>>, <<DEBUG-FLAG>>,<<NETWORKING-TIMEOUT>>,<<RETRY-LIMIT>>,<<RETRY-TIMEOUT>>)
 
 [formatters]
 keys=openobserveFormat
@@ -69,10 +66,13 @@ level=INFO
 format={"additional_field": "value"}
 ```
 *args=() arguments, by order*
- - Your api bearer token
+ - OpenObserve username
+ - OpenObserve password
+ - OpenObserve Listener address (i.e. to "https://openobserve.mydomain.net")
+ - OpenObserve organization (i.e. to "myorg")
+ - OpenObserve stream (i.e. "mystream")
  - Log type, for searching in OpenObserve (defaults to "python")
  - Time to sleep between draining attempts (defaults to "3")
- - OpenObserve Listener address (i.e. to "https://openobserve.mydomain.net")
  - Debug flag. Set to True, will print debug messages to stdout. (defaults to "False")
  - Backup logs flag. Set to False, will disable the local backup of logs in case of failure. (defaults to "True")
  - Network timeout, in seconds, int or float, for sending the logs to OpenObserve. (defaults to 10)
@@ -95,13 +95,16 @@ LOGGING = {
     },
     'handlers': {
         'openobserve': {
+            "username": '<<OPENOBSERVE-USERNAME>>',
+            "password": '<<OPENOBSERVE-PASSWORD>>',
+            'url': '<<OPENOBSERVE-URL>>',
+            "organization": '<<OPENOBSERVE-ORGANIZATION>>',
+            "stream": '<<OPENOBSERVE-STREAM>>',
             'class': 'openobserve.handler.OpenObserveHandler',
             'level': 'INFO',
             'formatter': 'openobserveFormat',
-            'token': '<<OPENOBSERVE-TOKEN>>',
             'openobserve_type': 'python-handler',
             'logs_drain_timeout': 5,
-            'url': 'https://<<OPENOBSERVE-URL>>:8071',
             'retries_no': 4,
             'retry_timeout': 2,
         }
@@ -116,8 +119,11 @@ LOGGING = {
 }
 ```
 Replace:
-* <<OPENOBSERVE-TOKEN>> - your api token.
-* <<OPENOBSERVE-URL>> - OpenObserve service url
+* <<OPENOBSERVE-USERNAME>> - OpenObserve username
+* <<OPENOBSERVE-PASSWORD>> - OpenObserve password
+* <<OPENOBSERVE-URL>> - OpenObserve listener service i.e. http://localhost:5080
+* <<OPENOBSERVE-ORGANIZATION>> - OpenObserve organization i.e. "myorg"
+* <<OPENOBSERVE-STREAM>> - OpenObserve stream i.e my stream
 
 #### Dynamic Extra Fields
 If you prefer, you can add extra fields to your logs dynamically, and not pre-defining them in the configuration.
@@ -183,11 +189,7 @@ logger.info('Warning', extra={'extra_key':'extra_value'})
 If you're sending traces with OpenTelemetry instrumentation (auto or manual), you can correlate your logs with the trace context.
 That way, your logs will have traces data in it, such as service name, span id and trace id.
 
-Make sure to install the OpenTelemetry logging instrumentation dependecy by running the following command:
-
-```shell
-pip install openobserve-python-handler[opentelemetry-logging]
-```
+OpenTelemetry logging instrumentation is enabled by default.
 To enable this feature, set the `add_context` param in your handler configuration to `True`, like in this example:
 
 ```python
@@ -202,13 +204,16 @@ LOGGING = {
     },
     'handlers': {
         'openobserve': {
+            "username": '<<OPENOBSERVE-USERNAME>>',
+            "password": '<<OPENOBSERVE-PASSWORD>>',
+            'url': '<<OPENOBSERVE-URL>>',
+            "organization": '<<OPENOBSERVE-ORGANIZATION>>',
+            "stream": '<<OPENOBSERVE-STREAM>>',
             'class': 'openobserve.handler.OpenObserveHandler',
             'level': 'INFO',
             'formatter': 'openobserveFormat',
-            'token': '<<OPENOBSERVE-TOKEN>>',
             'openobserve_type': 'python-handler',
             'logs_drain_timeout': 5,
-            'url': 'https://<<OPENOBSERVE-URL>>:8071',
             'retries_no': 4,
             'retry_timeout': 2,
             'add_context': True
