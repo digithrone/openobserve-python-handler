@@ -1,34 +1,33 @@
-import os
+import logging
 from unittest import TestCase
 
-import logging
-
-import sys
-
-import re
 from openobserve.handler import OpenObserveHandler
 
 
 class TestOpenObserveHandler(TestCase):
     TestCase.maxDiff = None
+
     def setUp(self):
-        self.handler = OpenObserveHandler("username","password","http://openobserve.mydomain.net","org","stream")
+        self.handler = OpenObserveHandler(
+            "username", "password", "http://openobserve.mydomain.net", "org", "stream"
+        )
 
     def test_json(self):
         formatter = logging.Formatter(
-            '{ "appname":"%(name)s", "functionName":"%(funcName)s", \"lineNo":"%(lineno)d", "severity":"%('
-            'levelname)s", "message":"%(message)s"}')
+            '{ "appname":"%(name)s", "functionName":"%(funcName)s", "lineNo":"%(lineno)d", "severity":"%('
+            'levelname)s", "message":"%(message)s"}'
+        )
         self.handler.setFormatter(formatter)
 
         record = logging.LogRecord(
-            name='my-logger',
+            name="my-logger",
             level=0,
-            pathname='handler_test.py',
+            pathname="handler_test.py",
             lineno=10,
             msg="this is a test: moo.",
             args=None,
             exc_info=None,
-            func='test_json'
+            func="test_json",
         )
 
         formatted_message = self.handler.format_message(record)
@@ -37,30 +36,30 @@ class TestOpenObserveHandler(TestCase):
         self.assertDictEqual(
             formatted_message,
             {
-                '@timestamp': None,
-                'appname': 'my-logger',
-                'functionName': 'test_json',
-                'lineNo': '10',
-                'line_number': 10,
-                'log_level': 'NOTSET',
-                'logger': 'my-logger',
-                'message': 'this is a test: moo.',
-                'path_name': 'handler_test.py',
-                'severity': 'NOTSET',
-                'type': 'python'
-            }
+                "@timestamp": None,
+                "appname": "my-logger",
+                "functionName": "test_json",
+                "lineNo": "10",
+                "line_number": 10,
+                "log_level": "NOTSET",
+                "logger": "my-logger",
+                "message": "this is a test: moo.",
+                "path_name": "handler_test.py",
+                "severity": "NOTSET",
+                "type": "python",
+            },
         )
 
     def test_string(self):
         record = logging.LogRecord(
-            name='my-logger',
+            name="my-logger",
             level=0,
-            pathname='handler_test.py',
+            pathname="handler_test.py",
             lineno=10,
             msg="this is a test: moo.",
             args=None,
             exc_info=None,
-            func='test_json'
+            func="test_json",
         )
 
         formatted_message = self.handler.format_message(record)
@@ -69,26 +68,26 @@ class TestOpenObserveHandler(TestCase):
         self.assertDictEqual(
             formatted_message,
             {
-                '@timestamp': None,
-                'line_number': 10,
-                'log_level': 'NOTSET',
-                'logger': 'my-logger',
-                'message': 'this is a test: moo.',
-                'path_name': 'handler_test.py',
-                'type': 'python'
-            }
+                "@timestamp": None,
+                "line_number": 10,
+                "log_level": "NOTSET",
+                "logger": "my-logger",
+                "message": "this is a test: moo.",
+                "path_name": "handler_test.py",
+                "type": "python",
+            },
         )
 
     def test_extra_formatting(self):
         record = logging.LogRecord(
-            name='my-logger',
+            name="my-logger",
             level=0,
-            pathname='handler_test.py',
+            pathname="handler_test.py",
             lineno=10,
             msg="this is a test: moo.",
             args=None,
             exc_info=None,
-            func='test_json'
+            func="test_json",
         )
 
         record.__dict__["extra_key"] = "extra_value"
@@ -99,27 +98,27 @@ class TestOpenObserveHandler(TestCase):
         self.assertDictEqual(
             formatted_message,
             {
-                '@timestamp': None,
-                'line_number': 10,
-                'log_level': 'NOTSET',
-                'logger': 'my-logger',
-                'message': 'this is a test: moo.',
-                'path_name': 'handler_test.py',
-                'type': 'python',
-                'extra_key': 'extra_value'
-            }
+                "@timestamp": None,
+                "line_number": 10,
+                "log_level": "NOTSET",
+                "logger": "my-logger",
+                "message": "this is a test: moo.",
+                "path_name": "handler_test.py",
+                "type": "python",
+                "extra_key": "extra_value",
+            },
         )
 
     def test_format_string_message(self):
         record = logging.LogRecord(
-            name='my-logger',
+            name="my-logger",
             level=0,
-            pathname='handler_test.py',
+            pathname="handler_test.py",
             lineno=10,
             msg="this is a test: %s.",
-            args=('moo',),
+            args=("moo",),
             exc_info=None,
-            func='test_json'
+            func="test_json",
         )
 
         formatted_message = self.handler.format_message(record)
@@ -128,20 +127,20 @@ class TestOpenObserveHandler(TestCase):
         self.assertDictEqual(
             formatted_message,
             {
-                '@timestamp': None,
-                'line_number': 10,
-                'log_level': 'NOTSET',
-                'logger': 'my-logger',
-                'message': 'this is a test: moo.',
-                'path_name': 'handler_test.py',
-                'type': 'python'
-            }
+                "@timestamp": None,
+                "line_number": 10,
+                "log_level": "NOTSET",
+                "logger": "my-logger",
+                "message": "this is a test: moo.",
+                "path_name": "handler_test.py",
+                "type": "python",
+            },
         )
 
     # def test_exception(self):
     #     formatter = logging.Formatter('{"tags": ["staging", "experimental"], "appname": "my-service"}', validate=False)
     #     self.handler.setFormatter(formatter)
-        
+
     #     try:
     #         raise ValueError("oops.")
     #     except:

@@ -1,12 +1,11 @@
-import sys
+import datetime
 import json
 import logging
-import datetime
-import traceback
 import logging.handlers
+import traceback
 
-from .sender import OpenObserveSender
 from .exceptions import OpenObserveException
+from .sender import OpenObserveSender
 
 
 class ExtraFieldsLogFilter(logging.Filter):
@@ -22,35 +21,40 @@ class ExtraFieldsLogFilter(logging.Filter):
 
 class OpenObserveHandler(logging.Handler):
 
-    def __init__(self,
-                 username,
-                 password,
-                 url,
-                 organization,
-                 stream,
-                 openobserve_type="python",
-                 logs_drain_timeout=3,                
-                 debug=False,
-                 backup_logs=True,
-                 network_timeout=10.0,
-                 retries_no=4,
-                 retry_timeout=2,
-                 add_context=False):
+    def __init__(
+        self,
+        username,
+        password,
+        url,
+        organization,
+        stream,
+        openobserve_type="python",
+        logs_drain_timeout=3,
+        debug=False,
+        backup_logs=True,
+        network_timeout=10.0,
+        retries_no=4,
+        retry_timeout=2,
+        add_context=False,
+    ):
 
         if not username or not password:
-            raise OpenObserveException('OpenObserve username/password must be provided')
+            raise OpenObserveException("OpenObserve U/P must be provided")
 
         self.openobserve_type = openobserve_type
 
         if add_context:
             try:
                 from opentelemetry.instrumentation.logging import LoggingInstrumentor
+
                 LoggingInstrumentor().instrument(set_logging_format=True)
             except ImportError:
-                print("""Can't add trace context.
+                print(
+                    """Can't add trace context.
 OpenTelemetry logging optional package isn't installed.
 Please install the following package:
-pip install 'openobserve-python-handler[opentelemetry-logging]'""")
+pip install 'openobserve-python-handler[opentelemetry-logging]'"""
+                )
             except RuntimeError:
                 print(RuntimeError)
         self.openobserve_sender = OpenObserveSender(
@@ -64,7 +68,8 @@ pip install 'openobserve-python-handler[opentelemetry-logging]'""")
             backup_logs=backup_logs,
             network_timeout=network_timeout,
             number_of_retries=retries_no,
-            retry_timeout=retry_timeout)
+            retry_timeout=retry_timeout,
+        )
         logging.Handler.__init__(self)
 
     def __del__(self):
@@ -73,17 +78,32 @@ pip install 'openobserve-python-handler[opentelemetry-logging]'""")
     def extra_fields(self, message):
 
         not_allowed_keys = (
-            'args', 'asctime', 'created', 'exc_info', 'stack_info', 'exc_text',
-            'filename', 'funcName', 'levelname', 'levelno', 'lineno', 'module',
-            'msecs', 'msecs', 'message', 'msg', 'name', 'pathname', 'process',
-            'processName', 'relativeCreated', 'thread', 'threadName')
+            "args",
+            "asctime",
+            "created",
+            "exc_info",
+            "stack_info",
+            "exc_text",
+            "filename",
+            "funcName",
+            "levelname",
+            "levelno",
+            "lineno",
+            "module",
+            "msecs",
+            "msecs",
+            "message",
+            "msg",
+            "name",
+            "pathname",
+            "process",
+            "processName",
+            "relativeCreated",
+            "thread",
+            "threadName",
+        )
 
-        if sys.version_info < (3, 0):
-            # long and basestring don't exist in py3 so, NOQA
-            var_type = (basestring, bool, dict, float,  # NOQA
-                        int, long, list, type(None))  # NOQA
-        else:
-            var_type = (str, bool, dict, float, int, list, type(None))
+        var_type = (str, bool, dict, float, int, list, type(None))
 
         extra_fields = {}
 
@@ -100,34 +120,37 @@ pip install 'openobserve-python-handler[opentelemetry-logging]'""")
         self.openobserve_sender.flush()
 
     def format(self, record):
-        message = super(OpenObserveHandler, self).format(record)
+        message = super().format(record)
         try:
             if record.exc_info:
-                message = message.split("\n")[0]  # only keep the original formatted message part
+                message = message.split("\n")[
+                    0
+                ]  # only keep the original formatted message part
             return json.loads(message)
         except (TypeError, ValueError):
             return message
 
     def format_exception(self, exc_info):
-        return '\n'.join(traceback.format_exception(*exc_info))
+        return "\n".join(traceback.format_exception(*exc_info))
 
     def format_message(self, message):
         now = datetime.datetime.utcnow()
-        timestamp = now.strftime('%Y-%m-%dT%H:%M:%S') + \
-                    '.%03d' % (now.microsecond / 1000) + 'Z'
+        timestamp = (
+            now.strftime("%Y-%m-%dT%H:%M:%S") + ".%03d" % (now.microsecond / 1000) + "Z"
+        )
 
         return_json = {
-            'logger': message.name,
-            'line_number': message.lineno,
-            'path_name': message.pathname,
-            'log_level': message.levelname,
-            'type': self.openobserve_type,
-            'message': message.getMessage(),
-            '@timestamp': timestamp
+            "logger": message.name,
+            "line_number": message.lineno,
+            "path_name": message.pathname,
+            "log_level": message.levelname,
+            "type": self.openobserve_type,
+            "message": message.getMessage(),
+            "@timestamp": timestamp,
         }
 
         if message.exc_info:
-            return_json['exception'] = self.format_exception(message.exc_info)
+            return_json["exception"] = self.format_exception(message.exc_info)
 
         # # We want to ignore default logging formatting on exceptions
         # # As we handle those differently directly into exception field
@@ -138,7 +161,7 @@ pip install 'openobserve-python-handler[opentelemetry-logging]'""")
             return_json.update(formatted_message)
         # No exception, apply default formatted message
         elif not message.exc_info:
-            return_json['message'] = formatted_message
+            return_json["message"] = formatted_message
 
         return_json.update(self.extra_fields(message))
         return return_json

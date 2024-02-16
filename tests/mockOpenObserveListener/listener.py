@@ -1,9 +1,8 @@
 # noinspection PyUnresolvedReferences
-import future
 import socket
-
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
+
 from .logsList import logs_list
 from .persistentFlags import persistent_flags
 
@@ -12,15 +11,19 @@ class ListenerHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             content_length = int(self.headers.get("Content-Length"))
-            all_logs = self.rfile.read(content_length).decode("utf-8").split('\n')
+            all_logs = self.rfile.read(content_length).decode("utf-8").split("\n")
             if len(all_logs) == 0:
-                self._set_response(400, "Bad Request", b"Bad request you got there, pal")
+                self._set_response(
+                    400, "Bad Request", b"Bad request you got there, pal"
+                )
                 return
 
             for log in all_logs:
                 if log != "":
                     if persistent_flags.get_server_error():
-                        self._set_response(500, "Issue!!!!!!!", b"Not good, not good at all.")
+                        self._set_response(
+                            500, "Issue!!!!!!!", b"Not good, not good at all."
+                        )
                         return
 
                     logs_list.list.append(log)
@@ -34,7 +37,7 @@ class ListenerHandler(BaseHTTPRequestHandler):
 
     def _set_response(self, http_code, http_description, byte_body):
         self.send_response(http_code, http_description)
-        self.send_header('Content-type', 'text/html')
+        self.send_header("Content-type", "text/html")
         self.end_headers()
         self.wfile.write(byte_body)
 

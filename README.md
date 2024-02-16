@@ -122,7 +122,7 @@ Replace:
 #### Dynamic Extra Fields
 If you prefer, you can add extra fields to your logs dynamically, and not pre-defining them in the configuration.
 This way, you can allow different logs to have different extra fields.
-Example in the code below. 
+Example in the code below.
 
 #### Code Example
 
@@ -153,15 +153,15 @@ def my_func():
 # Example additional code that demonstrates how to dynamically add/remove fields within the code, make sure class is imported.
 
     logger.info("Test log")  # Outputs: {"message":"Test log"}
-    
+
     extra_fields = {"foo":"bar","counter":1}
     logger.addFilter(ExtraFieldsLogFilter(extra_fields))
     logger.warning("Warning test log")  # Outputs: {"message":"Warning test log","foo":"bar","counter":1}
-    
+
     error_fields = {"err_msg":"Failed to run due to exception.","status_code":500}
     logger.addFilter(ExtraFieldsLogFilter(error_fields))
     logger.error("Error test log")  # Outputs: {"message":"Error test log","foo":"bar","counter":1,"err_msg":"Failed to run due to exception.","status_code":500}
-    
+
     # If you'd like to remove filters from future logs using the logger.removeFilter option:
     logger.removeFilter(ExtraFieldsLogFilter(error_fields))
     logger.debug("Debug test log") # Outputs: {"message":"Debug test log","foo":"bar","counter":1}
@@ -272,4 +272,4 @@ LOGGING = {
 
 
 ## Release Notes
-- 1.0.0 - forked and refactored with OpenObserve backend from https://github.com/logzio/logzio-python-handler/
+- 0.9.0 - snapshot from https://github.com/logzio/logzio-python-handler/ taken on 15.2.2024 and then refactored and tested with openobserve

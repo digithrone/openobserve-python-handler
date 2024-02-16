@@ -1,10 +1,13 @@
 import fnmatch
+import json
 import logging.config
 import os
 import time
-import json
+import unittest
 from unittest import TestCase
+
 from openobserve.handler import ExtraFieldsLogFilter
+
 from .mockOpenObserveListener import listener
 
 
@@ -32,10 +35,7 @@ class TestExtraFieldsFilter(TestCase):
         logging_configuration = {
             "version": 1,
             "formatters": {
-                "openobserve": {
-                    "format": '{"key": "value"}',
-                    "validate": False
-                }
+                "openobserve": {"format": '{"key": "value"}', "validate": False}
             },
             "handlers": {
                 "OpenObserveHandler": {
@@ -44,27 +44,25 @@ class TestExtraFieldsFilter(TestCase):
                     "level": "DEBUG",
                     "username": "username",
                     "password": "password",
-                    'openobserve_type': "type",
-                    'logs_drain_timeout': self.logs_drain_timeout,
-                    'url': "http://" + self.openobserve_listener.get_host() + ":" + str(self.openobserve_listener.get_port()),
+                    "openobserve_type": "type",
+                    "logs_drain_timeout": self.logs_drain_timeout,
+                    "url": "http://"
+                    + self.openobserve_listener.get_host()
+                    + ":"
+                    + str(self.openobserve_listener.get_port()),
                     "organization": "organization",
                     "stream": "stream",
-                    'debug': True,
-                    'retries_no': self.retries_no,
-                    'retry_timeout': self.retry_timeout,
-                    'add_context': self.add_context
+                    "debug": True,
+                    "retries_no": self.retries_no,
+                    "retry_timeout": self.retry_timeout,
+                    "add_context": self.add_context,
                 }
             },
-            "loggers": {
-                "test": {
-                    "handlers": ["OpenObserveHandler"],
-                    "level": "DEBUG"
-                }
-            }
+            "loggers": {"test": {"handlers": ["OpenObserveHandler"], "level": "DEBUG"}},
         }
 
         logging.config.dictConfig(logging_configuration)
-        self.logger = logging.getLogger('test')
+        self.logger = logging.getLogger("test")
 
         for curr_file in _find("openobserve-failures-*.txt", "."):
             os.remove(curr_file)
@@ -111,7 +109,7 @@ class TestExtraFieldsFilter(TestCase):
         log_message = "this log should have additional fields"
         self.logger.info(log_message)
 
-        extra_fields = {"counter":1}
+        extra_fields = {"counter": 1}
         self.logger.addFilter(ExtraFieldsLogFilter(extra=extra_fields))
         filtered_log_message = "this log should have multiple additional fields"
         self.logger.info(filtered_log_message)
@@ -133,5 +131,5 @@ class TestExtraFieldsFilter(TestCase):
                     print(err)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

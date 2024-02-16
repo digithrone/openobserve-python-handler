@@ -2,7 +2,6 @@ import fnmatch
 import logging.config
 import os
 import time
-from token import LESS
 from unittest import TestCase
 
 from .mockOpenObserveListener import listener
@@ -31,38 +30,33 @@ class TestOpenObserveSender(TestCase):
         logging_configuration = {
             "version": 1,
             "formatters": {
-                "openobserve": {
-                    "format": '{"key": "value"}',
-                    "validate": False
-                }
+                "openobserve": {"format": '{"key": "value"}', "validate": False}
             },
             "handlers": {
                 "OpenObserveHandler": {
                     "username": "username",
-                    "password": "password",                    
-                    'url': "http://" + self.openobserve_listener.get_host() + ":" + str(self.openobserve_listener.get_port()),
+                    "password": "password",
+                    "url": "http://"
+                    + self.openobserve_listener.get_host()
+                    + ":"
+                    + str(self.openobserve_listener.get_port()),
                     "organization": "organization",
                     "stream": "stream",
                     "class": "openobserve.handler.OpenObserveHandler",
                     "formatter": "openobserve",
-                    "level": "DEBUG",                    
-                    'openobserve_type': "type",
-                    'logs_drain_timeout': self.logs_drain_timeout,                    
-                    'debug': True,
-                    'retries_no': self.retries_no,
-                    'retry_timeout': self.retry_timeout
+                    "level": "DEBUG",
+                    "openobserve_type": "type",
+                    "logs_drain_timeout": self.logs_drain_timeout,
+                    "debug": True,
+                    "retries_no": self.retries_no,
+                    "retry_timeout": self.retry_timeout,
                 }
             },
-            "loggers": {
-                "test": {
-                    "handlers": ["OpenObserveHandler"],
-                    "level": "DEBUG"
-                }
-            }
+            "loggers": {"test": {"handlers": ["OpenObserveHandler"], "level": "DEBUG"}},
         }
 
         logging.config.dictConfig(logging_configuration)
-        self.logger = logging.getLogger('test')
+        self.logger = logging.getLogger("test")
 
         for curr_file in _find("openobserve-failures-*.txt", "."):
             os.remove(curr_file)
@@ -71,24 +65,26 @@ class TestOpenObserveSender(TestCase):
     #     counter=0
     #     while counter < limit :
     #         counter+=1
-    #         time.sleep(1)                
+    #         time.sleep(1)
 
     def test_simple_log_drain(self):
         log_message = "Test simple log drain"
         self.logger.info(log_message)
-        time.sleep(self.logs_drain_timeout*2)
+        time.sleep(self.logs_drain_timeout * 2)
         self.assertTrue(self.openobserve_listener.find_log(log_message))
-    
-    def test_multiple_lines_drain(self):        
-        self.assertEqual(self.openobserve_listener.get_number_of_logs(),0,"Log is not empty")
+
+    def test_multiple_lines_drain(self):
+        self.assertEqual(
+            self.openobserve_listener.get_number_of_logs(), 0, "Log is not empty"
+        )
         logs_num = 50
         for counter in range(0, logs_num):
             self.logger.info("Test " + str(counter))
-        time.sleep(self.logs_drain_timeout*2)
+        time.sleep(self.logs_drain_timeout * 2)
 
         for counter in range(0, logs_num):
             self.logger.info("Test " + str(counter))
-        time.sleep(self.logs_drain_timeout*2)
+        time.sleep(self.logs_drain_timeout * 2)
 
         self.assertEqual(self.openobserve_listener.get_number_of_logs(), logs_num * 2)
 
@@ -103,7 +99,9 @@ class TestOpenObserveSender(TestCase):
 
         self.openobserve_listener.clear_server_error()
 
-        time.sleep(self.logs_drain_timeout * self.retry_timeout * self.retries_no)  # Longer, because of the retry
+        time.sleep(
+            self.logs_drain_timeout * self.retry_timeout * self.retries_no
+        )  # Longer, because of the retry
 
         self.assertTrue(self.openobserve_listener.find_log(log_message))
 
@@ -115,12 +113,14 @@ class TestOpenObserveSender(TestCase):
         # Make sure no file is present
         self.assertEqual(len(_find("openobserve-failures-*.txt", ".")), 0)
 
-        time.sleep(self.retries_no*self.retry_timeout*self.logs_drain_timeout*2)  # All of the retries
+        time.sleep(
+            self.retries_no * self.retry_timeout * self.logs_drain_timeout * 2
+        )  # All of the retries
 
         failure_files = _find("openobserve-failures-*.txt", ".")
         self.assertEqual(len(failure_files), 1)
 
-        with open(failure_files[0], "r") as f:
+        with open(failure_files[0]) as f:
             line = f.readline()
             self.assertTrue(log_message in line)
 
@@ -133,13 +133,15 @@ class TestOpenObserveSender(TestCase):
         # Make sure no file is present
         self.assertEqual(len(_find("openobserve-failures-*.txt", ".")), 0)
 
-        time.sleep(self.retries_no*self.retry_timeout*self.logs_drain_timeout*2)  # All of the retries
+        time.sleep(
+            self.retries_no * self.retry_timeout * self.logs_drain_timeout * 2
+        )  # All of the retries
 
         # Make sure no file was created
         self.assertEqual(len(_find("openobserve-failures-*.txt", ".")), 0)
 
     # TODO: test on linux
-    #def test_can_send_after_fork(self):
+    # def test_can_send_after_fork(self):
     #     childpid = os.fork()
     #     child_log_message = 'logged from child process'
     #     parent_log_message = 'logged from parent process'

@@ -1,5 +1,5 @@
-import sys
 import logging
+import sys
 
 
 def get_logger(debug):
@@ -7,7 +7,9 @@ def get_logger(debug):
 
 
 def get_stdout_logger(debug):
-    stdout_logger = __get_logger(debug, __name__ + '_stdout', logging.StreamHandler(sys.stdout))
+    stdout_logger = __get_logger(
+        debug, __name__ + "_stdout", logging.StreamHandler(sys.stdout)
+    )
     stdout_logger.propagate = False
     return stdout_logger
 

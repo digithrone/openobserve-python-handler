@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
+
 setup(
     name="openobserve-python-handler",
-    version='1.0.0',
+    version="0.9.0",
     description="Logging handler to send logs to your OpenObserver service",
     keywords="logging handler",
     author="digithrone",
@@ -15,17 +16,14 @@ setup(
     install_requires=[
         "requests>=2.27.0",
         "protobuf>=3.20.2",
-        "opentelemetry-instrumentation-logging==0.39b0"
+        "opentelemetry-instrumentation-logging==0.39b0",
     ],
-    extras_require={        
-    },
-    test_requires=[
-        "future"
-    ],
+    extras_require={},
+    test_requires=["future"],
     include_package_data=True,
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Programming Language :: Python :: 3.9'
-    ]
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "Programming Language :: Python :: 3.9",
+    ],
 )

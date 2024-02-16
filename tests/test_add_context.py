@@ -1,8 +1,8 @@
 import fnmatch
+import json
 import logging.config
 import os
 import time
-import json
 from unittest import TestCase
 
 from .mockOpenObserveListener import listener
@@ -31,39 +31,34 @@ class TestAddContext(TestCase):
         self.logging_configuration = {
             "version": 1,
             "formatters": {
-                "openobserve": {
-                    "format": '{"key": "value"}',
-                    "validate": False
-                }
+                "openobserve": {"format": '{"key": "value"}', "validate": False}
             },
             "handlers": {
                 "OpenObserveHandler": {
                     "username": "username",
-                    "password": "password",                    
-                    'url': "http://" + self.openobserve_listener.get_host() + ":" + str(self.openobserve_listener.get_port()),
+                    "password": "password",
+                    "url": "http://"
+                    + self.openobserve_listener.get_host()
+                    + ":"
+                    + str(self.openobserve_listener.get_port()),
                     "organization": "organization",
                     "stream": "stream",
                     "class": "openobserve.handler.OpenObserveHandler",
                     "formatter": "openobserve",
                     "level": "DEBUG",
-                    'openobserve_type': "type",
-                    'logs_drain_timeout': self.logs_drain_timeout,
-                    'debug': True,
-                    'retries_no': self.retries_no,
-                    'retry_timeout': self.retry_timeout,
-                    'add_context': self.add_context
+                    "openobserve_type": "type",
+                    "logs_drain_timeout": self.logs_drain_timeout,
+                    "debug": True,
+                    "retries_no": self.retries_no,
+                    "retry_timeout": self.retry_timeout,
+                    "add_context": self.add_context,
                 }
             },
-            "loggers": {
-                "test": {
-                    "handlers": ["OpenObserveHandler"],
-                    "level": "DEBUG"
-                }
-            }
+            "loggers": {"test": {"handlers": ["OpenObserveHandler"], "level": "DEBUG"}},
         }
 
         logging.config.dictConfig(self.logging_configuration)
-        self.logger = logging.getLogger('test')
+        self.logger = logging.getLogger("test")
 
         for curr_file in _find("openobserve-failures-*.txt", "."):
             os.remove(curr_file)
@@ -78,17 +73,19 @@ class TestAddContext(TestCase):
             if log_message in current_log:
                 log_dict = json.loads(current_log)
                 try:
-                    self.assertTrue('otelSpanID' in log_dict)
-                    self.assertTrue('otelTraceID' in log_dict)
-                    self.assertTrue('otelServiceName' in log_dict)
+                    self.assertTrue("otelSpanID" in log_dict)
+                    self.assertTrue("otelTraceID" in log_dict)
+                    self.assertTrue("otelServiceName" in log_dict)
                 except AssertionError as err:
                     print(err)
 
     def test_ignore_context(self):
         # Set add_context to False and reconfigure the logger as it defaults to True
-        self.logging_configuration["handlers"]["OpenObserveHandler"]["add_context"] = False
+        self.logging_configuration["handlers"]["OpenObserveHandler"][
+            "add_context"
+        ] = False
         logging.config.dictConfig(self.logging_configuration)
-        self.logger = logging.getLogger('test')
+        self.logger = logging.getLogger("test")
         log_message = "this log should not have a trace context"
         self.logger.info(log_message)
         time.sleep(self.logs_drain_timeout * 2)
@@ -97,8 +94,8 @@ class TestAddContext(TestCase):
             if log_message in current_log:
                 log_dict = json.loads(current_log)
                 try:
-                    self.assertFalse('otelSpanID' in log_dict)
-                    self.assertFalse('otelTraceID' in log_dict)
-                    self.assertFalse('otelServiceName' in log_dict)
+                    self.assertFalse("otelSpanID" in log_dict)
+                    self.assertFalse("otelTraceID" in log_dict)
+                    self.assertFalse("otelServiceName" in log_dict)
                 except AssertionError as err:
                     print(err)
