@@ -1,6 +1,7 @@
 test-real.py
 .venv
 .env
+openobserve-*.txt
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
