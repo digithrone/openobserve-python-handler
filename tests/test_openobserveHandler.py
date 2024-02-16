@@ -49,7 +49,7 @@ class TestOpenObserveHandler(TestCase):
                 "message": "this is a test: moo.",
                 "path_name": "handler_test.py",
                 "severity": "NOTSET",
-                "type": "python",
+                "type": "python",                
             },
         )
 
@@ -166,7 +166,7 @@ class TestOpenObserveHandler(TestCase):
         filePath = os.path.normcase(__file__)
         formatted_message = self.handler.format_message(record)
         source = os.path.normcase(str(formatted_message["exception"]))
-        formatted_message["@timestamp"] = None
+        
         index = source.find(filePath)
         self.assertGreaterEqual(index, 0, filePath + " not in source " + source)
         end = index + len(filePath)
@@ -177,6 +177,7 @@ class TestOpenObserveHandler(TestCase):
         formatted_message["exception"] = re.sub(
             r", line \d+", "", formatted_message["exception"]
         )
+        formatted_message["@timestamp"] = None
 
         check = {
             "@timestamp": None,
@@ -188,10 +189,10 @@ class TestOpenObserveHandler(TestCase):
             "exception": 'Traceback (most recent call last):\n\n  File "", in test_exception\n    raise ValueError("oops.")\n\nValueError: oops.\n',
             "path_name": "handler_test.py",
             "type": "python",
-            "tags": ["staging", "experimental"],
+            "tags": ["staging", "experimental"]
         }
         self.assertDictEqual(
-            check,
             formatted_message,
+            check,            
             str(check) + " != " + str(formatted_message) + "," + filePath,
         )
