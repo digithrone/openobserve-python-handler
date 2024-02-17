@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - 'v*.*.*' #release on every push to releses subfolder
-    branches:
-      - main
 
 jobs:
   build-and-release:
