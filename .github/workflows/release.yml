@@ -4,7 +4,7 @@ on:
     workflows: ['CI Tests']
     types: [completed]  
     branches:
-      - 'v*.*.*' #ie. v1.0.1
+      - 'releases/v*.*.*' #ie. v1.0.1
    
 
 jobs:
