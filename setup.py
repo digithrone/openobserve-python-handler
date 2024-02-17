@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="openobserve-python-handler",
-    version="0.9.6",
+    version="0.9.7",
     description="Logging handler to send logs to your OpenObserver service",
     keywords="logging handler",
     author="digithrone",
