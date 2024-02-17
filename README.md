@@ -20,12 +20,6 @@ pip install openobserve-python-handler
 
 ## Tested Python Versions
 Travis CI will build this handler and test against:
-  - "3.5"
-  - "3.6"
-  - "3.7"
-  - "3.8"
-  - "3.9"
-  - "3.10"
   - "3.11"
 
 We can't ensure compatibility to any other version, as we can't test it automatically.
