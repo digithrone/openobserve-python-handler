@@ -48,7 +48,9 @@ class OpenObserveSender:
                 "utf-8"
             ),
         }
-        self.url = url + "/api/" + organization + "/" + stream + "/_json"
+        # https://openobserve.ai/docs/api/ingestion/logs/bulk/
+        self.stream = stream
+        self.url = url + "/api/" + organization + "/_bulk"
         self.logs_drain_timeout = logs_drain_timeout
         self.stdout_logger = get_stdout_logger(debug)
         self.backup_logs = backup_logs
@@ -205,6 +207,8 @@ class OpenObserveSender:
                 # pypy do not support sys.getsizeof
                 current_size += len(current_log) * 4
 
+            bulk = f'{{ "index": {{ "_index": "{self.stream}" }} }}'
+            logs_list.append(bulk)
             logs_list.append(current_log)
             if current_size >= MAX_BULK_SIZE_IN_BYTES:
                 break
