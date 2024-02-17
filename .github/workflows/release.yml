@@ -2,15 +2,13 @@ name: Pypi Release
 on:
   # Allows you to run this workflow manually from the Actions tab
   push:
-    workflows: ["CI Tests"]
     tags:
       - 'v*.*.*' #release on every push to releses subfolder
-    types:
-      - completed
+    branches:
+      - main
 
 jobs:
   build-and-release:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
