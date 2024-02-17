@@ -1,9 +1,11 @@
 name: Pypi Release
 on:
-  # Allows you to run this workflow manually from the Actions tab
+  workflow_run:
+    workflows: ['CI Tests']
+    types: [completed]  
   push:
     tags:
-      - 'v*.*.*' #release on every push to releses subfolder
+      - 'v*.*.*' #ie. v1.0.1
 
 jobs:
   build-and-release:
