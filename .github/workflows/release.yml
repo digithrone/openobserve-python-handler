@@ -1,12 +1,13 @@
 name: Pypi Release
 on:
-  workflow_run:
+  # Allows you to run this workflow manually from the Actions tab
+  push:
     workflows: ["CI Tests"]
     tags:
-      - 'releases/*' #release on every push to releses subfolder
+      - 'v*.*.*' #release on every push to releses subfolder
     types:
       - completed
-  # Allows you to run this workflow manually from the Actions tab
+
 jobs:
   build-and-release:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -22,7 +23,7 @@ jobs:
       - name: "Build and uploads to PyPI"
         run: |
           python3 setup.py sdist bdist_wheel
-          python3 -m twine upload dist/*
+          python3 -m twine upload --repository testpypi dist/*
         env:
           TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_REPO_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_TEST_TOKEN }}
