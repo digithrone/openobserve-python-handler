@@ -3,9 +3,9 @@ on:
   workflow_run:
     workflows: ['CI Tests']
     types: [completed]  
-  push:
-    tags:
-      - 'v*.*.*' #ie. v1.0.1
+    branches:
+      - 'releases/v*.*.*' #ie. v1.0.1
+   
 
 jobs:
   build-and-release:
