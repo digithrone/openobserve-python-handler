@@ -1,12 +1,9 @@
 name: Pypi Release
 on:
-  push:
-    tags:
-      - 'v*' #push everything to matching v*
   workflow_run:
     workflows: ["CI Tests"]
-    branches:
-      - 'main'
+    tags:
+      - 'releases/*' #release on every push to releses subfolder
     types:
       - completed
   # Allows you to run this workflow manually from the Actions tab
@@ -18,7 +15,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v3.0.0
         with:
-          python-version: '3.x'
+          python-version: '3.11'
       - name: "Install dependencies"
         run: |
           python3 -m pip install setuptools wheel twine

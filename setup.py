@@ -10,7 +10,7 @@ setup(
     author="digithrone",
     maintainer="digithrone",
     mail="info@digithrone.com",
-    url="https://github.com/openobserve/openobserve-python-handler/",
+    url="https://github.com/digithrone/openobserve-python-handler",
     license="Apache License 2",
     packages=find_packages(),
     install_requires=[
@@ -24,6 +24,6 @@ setup(
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
-        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.11",
     ],
 )
