@@ -131,10 +131,16 @@ class OpenObserveSender:
             for current_try in range(self.number_of_retries):
                 should_retry = False
                 try:
+                    # insert index stream line before log line for bulk insert
+                    data = []
+                    for l in logs_list:
+                        bulk = f'{{ "index": {{ "_index": "{self.stream}" }} }}'
+                        data.append(bulk)
+                        data.append(l)                    
                     response = self.requests_session.post(
                         self.url,
                         headers=self.headers,
-                        data="\n".join(logs_list),
+                        data="\n".join(data),
                         timeout=self.network_timeout,
                     )
                     if response.status_code != 200:
@@ -206,9 +212,7 @@ class OpenObserveSender:
             except TypeError:
                 # pypy do not support sys.getsizeof
                 current_size += len(current_log) * 4
-
-            bulk = f'{{ "index": {{ "_index": "{self.stream}" }} }}'
-            logs_list.append(bulk)
+            
             logs_list.append(current_log)
             if current_size >= MAX_BULK_SIZE_IN_BYTES:
                 break

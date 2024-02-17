@@ -86,7 +86,8 @@ class TestOpenObserveSender(TestCase):
             self.logger.info("Test " + str(counter))
         time.sleep(self.logs_drain_timeout * 2)
 
-        self.assertEqual(self.openobserve_listener.get_number_of_logs(), logs_num * 2)
+        #bulk load produces no_of_logs * 2 with additional stream line
+        self.assertEqual(self.openobserve_listener.get_number_of_logs(), logs_num * 2*2)
 
     def test_server_failure(self):
         log_message = "Failing log message"
