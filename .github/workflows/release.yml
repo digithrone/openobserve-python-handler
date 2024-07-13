@@ -1,13 +1,15 @@
 name: Pypi Release
 on:
-  workflow_run:
-    workflows: ['CI Tests']
-    types: [completed]  
-    branches:
-      - 'releases/v*.*.*' #ie. v1.0.1
-  push:
-    tags:
-      - 'releases/v*.*.*' #ie. v1.0.1
+  release:
+    types: [published]
+  # workflow_run:
+  #   workflows: ['CI Tests']
+  #   types: [completed]  
+  #   branches:
+  #     - 'releases/v*.*.*' #ie. v1.0.1
+  # push:
+  #   tags:
+  #     - 'releases/v*.*.*' #ie. v1.0.1
    
 
 jobs:
