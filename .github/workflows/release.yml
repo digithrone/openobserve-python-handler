@@ -5,6 +5,9 @@ on:
     types: [completed]  
     branches:
       - 'releases/v*.*.*' #ie. v1.0.1
+  push:
+    tags:
+      - 'releases/v*.*.*' #ie. v1.0.1
    
 
 jobs:
