@@ -3,18 +3,12 @@
 import base64
 import json
 import sys
+import requests
 from datetime import datetime
 from threading import Thread, enumerate
 from time import sleep
-
-import requests
-
 from .logger import get_stdout_logger
-
-if sys.version[0] == "2":
-    import Queue as queue
-else:
-    import queue as queue
+from multiprocessing import Queue
 
 MAX_BULK_SIZE_IN_BYTES = 1 * 1024 * 1024  # 1 MB
 
@@ -64,24 +58,48 @@ class OpenObserveSender:
             (i.name == "MainThread") and i.is_alive() for i in enumerate()
         )
 
-        # Create a queue to hold logs
-        self.queue = queue.Queue()
+        # Create a multiprocessing queue to hold logs - very important when using this log in Celery. 
+        # Normal multithreaded queue with Django is skipping logs.
+        self.queue = Queue()
         self._initialize_sending_thread()
+        self._initialize_monitoring_thread()
 
     def __del__(self):
         del self.stdout_logger
         del self.backup_logs
         del self.queue
+    def _initialize_monitoring_thread(self):
+        self.monitoring_thread = Thread(target=self._monitorSendingThread)
+        self.monitoring_thread.daemon = True
+        self.monitoring_thread.name = "openobserve-monitoring-thread"
+        self.monitoring_thread.start()
 
     def _initialize_sending_thread(self):
         self.sending_thread = Thread(target=self._drain_queue)
         self.sending_thread.daemon = False
         self.sending_thread.name = "openobserve-sending-thread"
         self.sending_thread.start()
+    
+    def _monitorSendingThread(self):
+        while True:   
+            if not self.is_main_thread_active():
+                self.stdout_logger.debug(
+                    "Identified quit of main thread, sending logs one " "last time"
+                )
+                break                     
+            if self.sending_thread is not None and not self.sending_thread.is_alive():
+                self.stdout_logger.debug(
+                    "Sending thread died, reinit"
+                )
+                self._initialize_sending_thread()
+            sleep(2)
 
     def append(self, logs_message):
-        if not self.sending_thread.is_alive():
-            self._initialize_sending_thread()
+        # This should be implemented in a way that it is inter process safe
+        # i.e. in celery append is called from a subprocess so we need multiprocessing queue and 
+        # also monitoring thread on them main process to check if the sending thread is alive
+        #if not self.sending_thread.is_alive():
+        #    self._initialize_sending_thread()
 
         # Queue lib is thread safe, no issue here
         self.queue.put(json.dumps(logs_message))

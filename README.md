@@ -271,5 +271,6 @@ LOGGING = {
 
 
 ## Release Notes
+- 1.0.2 - replaced multithread queue with multiprocessing queue to resolve multi process logging issues ( i.e. Djang + Celery workers were skipping logs)
 - 1.0.2 - updated open telemetry reference as options to prevent collisions
 - 0.9.0 - snapshot from https://github.com/logzio/logzio-python-handler/ taken on 15.2.2024 and then refactored and tested with openobserve
